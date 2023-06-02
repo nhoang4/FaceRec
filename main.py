@@ -1,18 +1,43 @@
-from deepface import DeepFace
 import cv2
+import dlib
 from pathlib import Path
 
-image1 = cv2.imread(str(Path.cwd()) + '/Testimages/image1.jpg')
+def detect_faces(image):
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    detector = dlib.cnn_face_detection_model_v1(str(Path.cwd()) + "/mmod_human_face_detector.dat")
+    faces = detector(gray)
+    return faces
 
-image2 = cv2.imread(str(Path.cwd()) + '/Testimages/image2.jpg')
 
-image3 = cv2.imread(str(Path.cwd()) + '/Testimages/image3.jpg')
+def compare_faces(image1, image2):
+    face_recognizer = dlib.face_recognition_model_v1(str(Path.cwd()) + "/dlib_face_recognition_resnet_model_v1.dat")
+    face1 = detect_faces(image1)
+    if len(face1) == 0:
+        print("No faces found in the first image.")
+        return
 
-image4 = cv2.imread(str(Path.cwd()) + '/Testimages/image4.jpg')
 
-image5 = cv2.imread(str(Path.cwd()) + '/Testimages/image5.jpg')
+    face2 = detect_faces(image2)
+    if len(face2) == 0:
+        print("No faces found in the second image.")
+        return
 
-image6 = cv2.imread(str(Path.cwd()) + '/Testimages/image6.jpg')
+    shape1 = face_recognizer.compute_face_descriptor(image1, face1)
 
-result = DeepFace.verify(image3, image6)
-print(result)
+    shape2 = face_recognizer.compute_face_descriptor(image2, face2)
+
+    distance = dlib.distance(shape1, shape2)
+
+
+    if distance < 0.6:
+        print("The faces are similar.")
+    else:
+        print("The faces are not similar.")
+
+
+# Load the images
+image1 = cv2.imread(str(Path.cwd()) + '/Testimages/ID1.jpg')
+image2 = cv2.imread(str(Path.cwd()) + '/Testimages/ID1.jpg')
+
+# Compare the faces in the two images
+compare_faces(image1, image2)
