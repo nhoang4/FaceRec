@@ -1,43 +1,57 @@
 import cv2
 import dlib
 from pathlib import Path
+import numpy as np
+from mtcnn import MTCNN
 
-def detect_faces(image):
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    detector = dlib.cnn_face_detection_model_v1(str(Path.cwd()) + "/mmod_human_face_detector.dat")
-    faces = detector(gray)
-    return faces
+
+
+def detect_face(image):
+    detector = MTCNN()
+    results = detector.detect_faces(image)
+    if len(results) == 0:
+        return None
+    else:
+        x, y, w, h = results[0]['box']
+        return dlib.rectangle(x, y, x + w, y + h)
 
 
 def compare_faces(image1, image2):
+    shape_predictor = dlib.shape_predictor(str(Path.cwd()) + "/shape_predictor_68_face_landmarks.dat")
     face_recognizer = dlib.face_recognition_model_v1(str(Path.cwd()) + "/dlib_face_recognition_resnet_model_v1.dat")
-    face1 = detect_faces(image1)
-    if len(face1) == 0:
-        print("No faces found in the first image.")
+
+    face1 = detect_face(image1)
+    if face1 is None:
+        print("No face found in the first image.")
         return
 
-
-    face2 = detect_faces(image2)
-    if len(face2) == 0:
-        print("No faces found in the second image.")
+    face2 = detect_face(image2)
+    if face2 is None:
+        print("No face found in the second image.")
         return
 
-    shape1 = face_recognizer.compute_face_descriptor(image1, face1)
-
-    shape2 = face_recognizer.compute_face_descriptor(image2, face2)
-
-    distance = dlib.distance(shape1, shape2)
+    shape1 = shape_predictor(image1, face1)
+    face_descriptor1 = face_recognizer.compute_face_descriptor(image1, shape1)
 
 
-    if distance < 0.6:
-        print("The faces are similar.")
-    else:
-        print("The faces are not similar.")
+    shape2 = shape_predictor(image2, face2)
+    face_descriptor2 = face_recognizer.compute_face_descriptor(image2, shape2)
 
 
-# Load the images
-image1 = cv2.imread(str(Path.cwd()) + '/Testimages/ID1.jpg')
-image2 = cv2.imread(str(Path.cwd()) + '/Testimages/ID1.jpg')
+    face_descriptor1 = np.array(face_descriptor1)
+    face_descriptor2 = np.array(face_descriptor2)
 
-# Compare the faces in the two images
+
+    distance = np.linalg.norm(face_descriptor1 - face_descriptor2)
+
+
+    similarity_percentage = (1 - distance) * 100
+    print("Similarity: {:.2f}%".format(similarity_percentage))
+
+
+
+
+
+image1 = dlib.load_rgb_image(str(Path.cwd()) + '/Testimages/ID2.jpg')
+image2 = dlib.load_rgb_image(str(Path.cwd()) + '/Testimages/ID1.jpg')
 compare_faces(image1, image2)
