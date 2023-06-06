@@ -51,6 +51,6 @@ def compare_faces(image1, image2):
     print("Similarity: {:.2f}%".format(similarity_percentage))
 
 
-image1 = dlib.load_rgb_image(str(Path.cwd()) + '/Test_Images/image3.jpg')
-image2 = dlib.load_rgb_image(str(Path.cwd()) + '/Test_Images/image4.jpg')
+image1 = dlib.load_rgb_image(str(Path.cwd()) + '/Test_Images/ID2.jpg')
+image2 = dlib.load_rgb_image(str(Path.cwd()) + '/Test_Images/ID2_unrotated.jpg')
 compare_faces(image1, image2)
