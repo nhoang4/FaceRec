@@ -19,7 +19,7 @@ pip install opencv-python dlib numpy face_recognition
 
 Additionally, the model requires the `shape_predictor_68_face_landmarks.dat` file, which contains the pre-trained facial landmark detector from dlib. Download the file from the following link and place it inside the 'Models' directory:
 
-[shape_predictor_68_face_landmarks.dat](https://github.com/davisking/dlib-models/raw/master/shape_predictor_68_face_landmarks.dat)
+[shape_predictor_68_face_landmarks.dat](https://github.com/italojs/facial-landmarks-recognition/blob/master/shape_predictor_68_face_landmarks.dat)
 
 ## Usage
 
